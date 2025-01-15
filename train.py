@@ -67,11 +67,11 @@ class Block(nn.Module):
 
 @dataclass
 class GPTConfig:
-     block_size: int = 1024 # max sequence length
-     vocab_size: int = 50257 # number of tokens: 50,000 BPE merges + 256 bytes tokens + 1 <|endoftext|> token
-     n_layer: int = 12 # number of layers
-     n_head: int = 12 # number of heads
-     n_embd: int = 768 # embedding dimension
+    block_size: int = 1024 # max sequence length
+    vocab_size: int = 50257 # number of tokens: 50,000 BPE merges + 256 bytes tokens + 1 <|endoftext|> token
+    n_layer: int = 12 # number of layers
+    n_head: int = 12 # number of heads
+    n_embd: int = 768 # embedding dimension
 
 class GPT(nn.Module):
 
@@ -157,12 +157,19 @@ class GPT(nn.Module):
         return model
 
 #---------------------
+device = 'cpu'
+if torch.cuda.is_available():
+    device = 'cuda'
+print(f"using device: {device}")
+
+
 num_return_sequences = 5
 max_length = 30
 
-model = GPT.from_pretrained('gpt2')
+#model = GPT.from_pretrained('gpt2')
+model = GPT(GPTConfig())
 model.eval()
-model.to('cuda')
+model.to(device)
 
 #prefix token
 import tiktoken
@@ -170,7 +177,7 @@ enc = tiktoken.get_encoding('gpt2')
 tokens = enc.encode("Hello I'm a language model,")
 tokens = torch.tensor(tokens, dtype=torch.long)
 tokens = tokens.unsqueeze(0).repeat(num_return_sequences, 1)
-x=  tokens.to('cuda')
+x=  tokens.to(device)
 
 torch.manual_seed(42)
 torch.cuda.manual_seed(42)
